@@ -1,0 +1,10 @@
+<reply>
+  <result>OK</result>
+  <code>0</code>
+  <description>queued 1 message</description>
+  <message_infos>
+    <message_info>
+      <sms_id>1000472891</sms_id>
+    </message_info>
+  </message_infos>
+</reply>

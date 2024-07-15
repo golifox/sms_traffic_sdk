@@ -1,0 +1,5 @@
+<reply>
+  <result>ERROR</result>
+  <code>401</code>
+  <description>login param is missing</description>
+</reply>

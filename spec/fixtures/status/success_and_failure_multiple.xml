@@ -1,0 +1,24 @@
+<reply>
+  <sms>
+    <error></error>
+    <submition_date>2020-05-09 14:11:39</submition_date>
+    <send_date>2020-05-09 14:11:39</send_date>
+    <last_status_change_date>2020-05-09 14:12:00</last_status_change_date>
+    <sms_id>8287713301</sms_id>
+    <status>Expired</status>
+  </sms>
+  <sms>
+    <error></error>
+    <submition_date>2020-05-09 14:11:39</submition_date>
+    <send_date>2020-05-09 14:11:40</send_date>
+    <last_status_change_date>2020-05-09 14:12:00</last_status_change_date>
+    <sms_id>8287713303</sms_id>
+    <status>Delivered</status>
+  </sms>
+  <sms>
+    <error>
+      no such message or this message does not belong to you
+    </error>
+    <sms_id>82877133031</sms_id>
+  </sms>
+</reply>

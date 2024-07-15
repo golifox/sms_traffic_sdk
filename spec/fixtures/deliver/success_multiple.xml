@@ -1,0 +1,22 @@
+<reply>
+  <result>OK</result>
+  <code>0</code>
+  <description>queued 3 messages</description>
+  <message_infos>
+    <message_info>
+      <phone>79051112233</phone>
+      <sms_id>8287366071</sms_id>
+      <push_id>a</push_id>
+    </message_info>
+    <message_info>
+      <phone>79051112233</phone>
+      <sms_id>8287366073</sms_id>
+      <push_id>a</push_id>
+    </message_info>
+    <message_info>
+      <phone>79261112233</phone>
+      <sms_id>8287366075</sms_id>
+      <push_id>b</push_id>
+    </message_info>
+  </message_infos>
+</reply>
