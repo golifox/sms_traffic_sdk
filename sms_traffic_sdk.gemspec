@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require_relative 'lib/sms_traffic/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'sms_traffic'
+  spec.name          = 'sms_traffic_sdk'
   spec.version       = SmsTraffic::VERSION
   spec.authors       = ['David Rybolovlev']
   spec.email         = ['i@golifox.ru']
