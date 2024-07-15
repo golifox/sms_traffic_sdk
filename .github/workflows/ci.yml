@@ -70,4 +70,6 @@ jobs:
 
       - name: Push gem to RubyGems
         run: |
-          gem push *.gem -k ${{secrets.RUBYGEMS_AUTH_TOKEN}}
+          gem push *.gem
+        env:
+          GEM_HOST_API_KEY: ${{secrets.GEM_HOST_API_KEY}}
