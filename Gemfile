@@ -1,10 +1,8 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in .gemspec
 gemspec
 
 group :development, :test do
-  gem 'bundler', '~> 2.5'
   gem 'dotenv', '~> 2.7'
   gem 'fasterer', '~> 0.9'
   gem 'rack', '~> 3.1.7'
