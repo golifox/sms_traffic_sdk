@@ -3,6 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/sms_traffic.svg)](https://badge.fury.io/rb/sms_traffic)
 [![Maintainability](https://api.codeclimate.com/v1/badges/bb4795be5024dd81d927/maintainability)](https://codeclimate.com/github/golifox/sms_traffic/maintainability)
 [![Coverage](https://codecov.io/github/golifox/sms_traffic/graph/badge.svg?token=74C0YBJP3F)](https://codecov.io/github/golifox/sms_traffic)
+[![CI](https://github.com/golifox/sms_traffic/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/golifox/sms_traffic/actions/workflows/ci.yml)
 
 ## Installation
 
