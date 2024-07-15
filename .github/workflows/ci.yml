@@ -46,7 +46,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage/.resultset.json
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
   publish:
     needs: build

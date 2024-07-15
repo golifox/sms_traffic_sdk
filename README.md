@@ -10,7 +10,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'sms_traffic'
+gem 'sms_traffic_sdk'
 ```
 
 And then execute:
@@ -19,7 +19,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install sms_traffic
+    $ gem install sms_traffic_sdk
 
 ## Usage
 
@@ -28,6 +28,7 @@ Define settings:
 
 ```ruby
 # initializers/sms_traffic.rb
+require 'sms_traffic_sdk'
 
 SmsTraffic.configure do |config|
   config.login = 'login'
