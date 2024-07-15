@@ -5,6 +5,17 @@
 [![Coverage](https://codecov.io/github/golifox/sms_traffic/graph/badge.svg?token=74C0YBJP3F)](https://codecov.io/github/golifox/sms_traffic)
 [![CI](https://github.com/golifox/sms_traffic/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/golifox/sms_traffic/actions/workflows/ci.yml)
 
+Ruby Gem as a software development kit (SDK) that facilitates interaction with the SMS Traffic HTTP API (smstraffic.ru/api).
+This gem provides a convenient wrapper to integrate SMS Traffic services within Ruby applications, allowing for easy 
+sending of SMS messages фтв checking delivery statuses.
+
+## Features
+
+- Send SMS messages to single or multiple recipients.
+- Check the delivery status of sent messages.
+- **TODO:** Support for various message formats and encodings.
+
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -22,7 +33,6 @@ Or install it yourself as:
     $ gem install sms_traffic_sdk
 
 ## Usage
-
 
 Define settings:
 
@@ -81,13 +91,26 @@ reply.hash
 
 ```
 
-## Development
+# Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/golifox/sms_traffic_sdk. 
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. 
+To install this gem onto your local machine, run `bundle exec rake install`.
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+The gem is available as open-source under the terms of the [MIT License](LICENSE).
+
+## Contact
+
+If you have any questions or feedback regarding SMS Traffic SDK, please feel free to contact us via GitHub issues or directly by email at your-email@example.com.
+
+## Acknowledgments
+
+- Thanks to the SMS Traffic team for providing the API that this gem is based upon.
+- Anyone who contributes to this project is greatly appreciated.
+
+For more information please visit [SMS Traffic API docs](http://smstraffic.ru/api).
 

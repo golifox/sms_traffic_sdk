@@ -10,7 +10,9 @@ Gem::Specification.new do |spec|
   spec.email         = ['i@golifox.ru']
 
   spec.summary       = 'Send sms via SmsTraffic service.'
-  spec.description   = 'Send sms via SmsTraffic service.'
+  spec.description   = 'Ruby Gem as a SDK for interacting with the SMS Traffic HTTP API (smstraffic.ru/api).
+                        This gem provides a convenient way to integrate SMS Traffic services into Ruby applications,
+                        enabling tasks such as sending SMS messages, checking delivery status, and others.'
   spec.homepage      = 'https://github.com/golifox/sms_traffic'
   spec.license       = 'MIT'
 
