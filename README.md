@@ -1,8 +1,8 @@
 # SmsTraffic
 
 [![Gem Version](https://badge.fury.io/rb/sms_traffic.svg)](https://badge.fury.io/rb/sms_traffic)
-[![Maintainability](https://api.codeclimate.com/v1/badges/7b3b3b3b3b3b3b3b3b3b/maintainability)](https://codeclimate.com/github/folidox/sms_traffic/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/7b3b3b3b3b3b3b3b3b3b/test_coverage)](https://codeclimate.com/github/golifox/sms_traffic/test_coverage) 
+[![Maintainability](https://api.codeclimate.com/v1/badges/bb4795be5024dd81d927/maintainability)](https://codeclimate.com/github/golifox/sms_traffic/maintainability)
+[![Coverage](https://codecov.io/github/golifox/sms_traffic/graph/badge.svg?token=74C0YBJP3F)](https://codecov.io/github/golifox/sms_traffic)
 
 ## Installation
 
