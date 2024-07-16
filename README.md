@@ -7,7 +7,7 @@
 
 Ruby Gem as a software development kit (SDK) that facilitates interaction with the SMS Traffic HTTP API (smstraffic.ru/api).
 This gem provides a convenient wrapper to integrate SMS Traffic services within Ruby applications, allowing for easy 
-sending of SMS messages фтв checking delivery statuses.
+sending of SMS messages and checking delivery statuses.
 
 ## Features
 
