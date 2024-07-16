@@ -105,7 +105,7 @@ The gem is available as open-source under the terms of the [MIT License](LICENSE
 
 ## Contact
 
-If you have any questions or feedback regarding SMS Traffic SDK, please feel free to contact us via GitHub issues or directly by email at your-email@example.com.
+If you have any questions or feedback regarding SMS Traffic SDK, please feel free to contact us via GitHub issues or directly by email at i@golifox.ru.
 
 ## Acknowledgments
 
