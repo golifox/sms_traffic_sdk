@@ -45,10 +45,10 @@ module SmsTraffic
 
     private
 
-    def validate!
+    def validate! # rubocop:disable Metrics/ AbcSize
       raise ArgumentError, "Phone should be assigned to #{self.class}." if phone.nil?
 
-      unless phone.to_s =~ /^[0-9]{11}$/
+      if SmsTraffic.configuration.validate_phone && phone.to_s !~ /^[0-9]{11,}$/
         raise ArgumentError, 'Phone number should contain only numbers. Minimum length is 11.'
       end
 

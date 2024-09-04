@@ -6,22 +6,50 @@ RSpec.describe SmsTraffic::Sms do
   let(:originator) { 'originator' }
 
   describe '.new' do
-    context 'when phone is nil' do
-      let(:phone) { nil }
+    describe 'phone validation' do
+      context 'when phone validation is enabled' do
+        context 'when phone is nil' do
+          let(:phone) { nil }
 
-      it_behaves_like 'raises ArgumentError', "Phone should be assigned to #{described_class}."
-    end
+          it_behaves_like 'raises ArgumentError', "Phone should be assigned to #{described_class}."
+        end
 
-    context 'when phone is not 11 digits' do
-      let(:phone) { '7999111223' }
+        context 'when phone is not 11 digits' do
+          let(:phone) { '7999111223' }
 
-      it_behaves_like 'raises ArgumentError', 'Phone number should contain only numbers. Minimum length is 11.'
-    end
+          it_behaves_like 'raises ArgumentError', 'Phone number should contain only numbers. Minimum length is 11.'
+        end
 
-    context 'when phone is not a number' do
-      let(:phone) { '7999111223a' }
+        context 'when phone is not a number' do
+          let(:phone) { '7999111223a' }
 
-      it_behaves_like 'raises ArgumentError', 'Phone number should contain only numbers. Minimum length is 11.'
+          it_behaves_like 'raises ArgumentError', 'Phone number should contain only numbers. Minimum length is 11.'
+        end
+      end
+
+      context 'when phone validation is disabled' do
+        before do
+          SmsTraffic.configuration.validate_phone = false
+        end
+
+        context 'when phone is nil' do
+          let(:phone) { nil }
+
+          it_behaves_like 'raises ArgumentError', "Phone should be assigned to #{described_class}."
+        end
+
+        context 'when phone is not 11 digits' do
+          let(:phone) { '7999111223' }
+
+          it { will_be_expected.to_not raise_error }
+        end
+
+        context 'when phone is not a number' do
+          let(:phone) { '7999111223a' }
+
+          it { will_be_expected.to_not raise_error }
+        end
+      end
     end
 
     context 'when message is nil' do

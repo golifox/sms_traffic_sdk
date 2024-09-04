@@ -1,14 +1,17 @@
 RSpec.describe SmsTraffic do
   describe '.configure' do
     context 'when validations passed' do
-      let(:attributes) { { login: 'username', password: 'password', host: 'http://example.com', originator: 'q' } }
+      let(:attributes) do
+        { login: 'username', password: 'password', host: 'http://example.com', originator: 'q', validate_phone: false }
+      end
 
       it 'can be configured' do
         described_class.configure do |config|
-          config.login = attributes[:login]
-          config.password = attributes[:password]
-          config.host = attributes[:host]
-          config.originator = attributes[:originator]
+          config.login          = attributes[:login]
+          config.password       = attributes[:password]
+          config.host           = attributes[:host]
+          config.originator     = attributes[:originator]
+          config.validate_phone = false
         end
 
         expect(described_class.configuration).to have_attributes(attributes)
@@ -31,11 +34,11 @@ RSpec.describe SmsTraffic do
         it "raises error when #{scenario}" do
           expect do
             described_class.configure do |config|
-              config.login = attributes[:login]
+              config.login    = attributes[:login]
               config.password = attributes[:password]
-              config.host = attributes[:host]
-              config.debug = attributes[:debug]
-              config.logger = attributes[:logger]
+              config.host     = attributes[:host]
+              config.debug    = attributes[:debug]
+              config.logger   = attributes[:logger]
             end
           end.to raise_error(ArgumentError)
         end

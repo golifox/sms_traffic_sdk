@@ -5,12 +5,13 @@ module SmsTraffic
   class Configuration
     include Singleton
 
-    attr_accessor :login, :password, :host, :originator, :debug, :logger, :xml_parser
+    attr_accessor :login, :password, :host, :originator, :debug, :logger, :xml_parser, :validate_phone
 
     def initialize
-      self.debug = default_configuration[:debug]
-      self.logger = default_configuration[:logger]
-      self.xml_parser = default_configuration[:xml_parser]
+      self.debug          = default_configuration[:debug]
+      self.logger         = default_configuration[:logger]
+      self.xml_parser     = default_configuration[:xml_parser]
+      self.validate_phone = default_configuration[:validate_phone]
       super
     end
 
@@ -46,13 +47,14 @@ module SmsTraffic
 
     def default_configuration
       {
-        login:      nil,
-        password:   nil,
-        host:       nil,
-        originator: nil,
-        debug:      false,
-        logger:     $stdout,
-        xml_parser: default_xml_parser
+        login:          nil,
+        password:       nil,
+        host:           nil,
+        originator:     nil,
+        debug:          false,
+        logger:         $stdout,
+        xml_parser:     default_xml_parser,
+        validate_phone: true
       }
     end
 
