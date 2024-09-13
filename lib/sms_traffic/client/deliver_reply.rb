@@ -5,6 +5,8 @@ module SmsTraffic
 
       def ok?
         fetch_value(hash, :result) == OK_REPLY
+      rescue NoMethodError
+        false
       end
 
       def error?
@@ -29,7 +31,7 @@ module SmsTraffic
 
       def sms_id(phone = nil)
         message_info = fetch_value(message_infos, :message_info)
-        return fetch_value(message_info, :sms_id) if message_info.is_a?(Hash)
+        return fetch_value(message_info, :sms_id) if message_info.is_a?(Hash) || message_info.nil?
 
         raise ArgumentError, 'phone is required' unless phone
 

@@ -127,6 +127,21 @@ RSpec.describe SmsTraffic::Sms do
       it { expect(delivered.status).to eq('sent') }
       it { expect(delivered.id).to eq(reply.sms_id) }
     end
+
+    context 'when sms traffic respond with success but sms not sent' do
+      let(:response) { instance_double(SmsTraffic::Client::Response, success?: true, reply: reply) }
+      let(:reply) do
+        instance_double(SmsTraffic::Client::DeliverReply, ok?: false, sms_id: nil, error_description: nil)
+      end
+
+      before do
+        allow(SmsTraffic::Client).to receive(:deliver).and_return(response)
+        deliver
+      end
+
+      it { expect(deliver).to be_falsey }
+      it { expect(sms.errors).to include('Sms has been not enqueued') }
+    end
   end
 
   describe '.update_status' do

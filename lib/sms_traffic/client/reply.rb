@@ -4,7 +4,7 @@ module SmsTraffic
       attr_reader :xml, :hash
 
       def initialize(xml, xml_parser: SmsTraffic.configuration.xml_parser)
-        @xml = xml.gsub!(/\s+/, ' ')
+        @xml  = xml.gsub!(/\s+/, ' ')
         @hash = fetch_value(xml_parser.parse(xml), :reply)
       end
 
@@ -12,6 +12,8 @@ module SmsTraffic
 
       def fetch_value(hash, key)
         hash.fetch(key.to_s, nil) || hash.fetch(key.to_sym, nil)
+      rescue NoMethodError
+        nil
       end
     end
   end

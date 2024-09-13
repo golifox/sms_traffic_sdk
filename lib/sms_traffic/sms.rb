@@ -4,11 +4,11 @@ module SmsTraffic
     attr_reader :id, :status, :errors
 
     def initialize(phone, message, originator: nil)
-      @phone = phone
-      @message = message
+      @phone      = phone
+      @message    = message
       @originator = originator || SmsTraffic.configuration.originator
-      @status = 'not-sent'
-      @errors = []
+      @status     = 'not-sent'
+      @errors     = []
       validate!
     end
 
@@ -26,10 +26,10 @@ module SmsTraffic
 
       if reply.ok?
         @status = 'sent'
-        @id = reply.sms_id
+        @id     = reply.sms_id
         true
       else
-        @errors << reply.error_description
+        @errors << (reply.error_description || 'Sms has been not enqueued')
         false
       end
     end

@@ -92,4 +92,19 @@ RSpec.describe SmsTraffic::Client, 'deliver single sms' do
     }
     it { expect(reply.error_description).to be_nil }
   end
+
+  context 'when sms has not been enqueued' do
+    let(:body) { fixture('deliver/failure_single.xml') }
+    let(:phones) { first_phone }
+    before do
+      stub_request(:post, uri)
+        .with(body: hash_including(login: login, password: password, phones: phones,
+                                   message: message), headers: headers)
+        .and_return(body: body, status: 200)
+    end
+
+    it { expect(deliver).to be_success }
+    it { expect(deliver.error_description).to be_nil }
+    it { expect(reply.sms_id).to be_nil }
+  end
 end
