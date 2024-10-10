@@ -83,7 +83,6 @@ RSpec.describe SmsTraffic::Client, 'deliver single sms' do
     it { expect(reply.result).to eq('OK') }
     it { expect(reply.code).to eq('0') }
     it { expect(reply.description).to include('queued').and(include('3 messages')) }
-    it { expect { reply.sms_id }.to raise_error(ArgumentError) }
     it { expect(reply.sms_id(first_phone)).to eq('8287366071') }
     it { expect(reply.sms_ids).to be_a(Hash) }
     it {
@@ -128,6 +127,7 @@ RSpec.describe SmsTraffic::Client, 'deliver single sms' do
     it { expect(reply.result).to eq('OK') }
     it { expect(reply.code).to eq('0') }
     it { expect(reply.description).to include('queued').and(include('3 messages')) }
+    it { expect(reply.sms_id).to eq(expected_sms_id) } # return first sms_id from array
     it { expect(reply.sms_id(first_phone)).to eq(expected_sms_id) }
     it { expect(reply.error_description).to be_nil }
   end

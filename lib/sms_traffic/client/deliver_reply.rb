@@ -33,15 +33,17 @@ module SmsTraffic
         message_info = fetch_value(message_infos, :message_info)
         return fetch_value(message_info, :sms_id) if message_info.is_a?(Hash) || message_info.nil?
 
-        raise ArgumentError, 'phone is required' unless phone
-
-        fetch_value(find_message_info(phone), :sms_id)
+        if phone
+          fetch_value(find_message_info(phone), :sms_id)
+        elsif message_info.is_a?(Array)
+          fetch_value(message_info.first, :sms_id)
+        end
       end
 
       def sms_ids
         message_info = fetch_value(message_infos, :message_info)
 
-        return [fetch_value(message_info, :sms_id)] if message_info.size == 1
+        return [fetch_value(message_info, :sms_id)] if message_info&.size == 1
 
         message_info.each_with_object({}) do |info, hash|
           hash[fetch_value(info, :phone)] = fetch_value(info, :sms_id)
