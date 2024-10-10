@@ -26,7 +26,7 @@ module SmsTraffic
 
       if reply.ok?
         @status = 'sent'
-        @id     = reply.sms_id(phone)
+        @id     = reply.sms_id || reply.sms_ids.values.first
         true
       else
         @errors << (reply.error_description || 'Sms has been not enqueued')
