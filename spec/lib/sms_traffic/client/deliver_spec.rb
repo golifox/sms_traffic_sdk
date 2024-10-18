@@ -131,4 +131,26 @@ RSpec.describe SmsTraffic::Client, 'deliver single sms' do
     it { expect(reply.sms_id(first_phone)).to eq(expected_sms_id) }
     it { expect(reply.error_description).to be_nil }
   end
+
+  context 'when single sms not queued' do
+    let(:phones) { first_phone }
+    let(:body) { fixture('deliver/success_not_queued.xml') }
+
+    before do
+      stub_request(:post, uri)
+        .with(body: hash_including(login: login, password: password, phones: phones,
+                                   message: message), headers: headers)
+        .and_return(body: body, status: 200)
+    end
+
+    it { expect(deliver).to be_success }
+    it { expect(deliver.error_description).to be_nil }
+    it { expect(reply).to be_a(SmsTraffic::Client::DeliverReply) }
+    it { expect(reply).not_to be_ok }
+    it { expect(reply).to be_error }
+    it { expect(reply.result).to eq('OK') }
+    it { expect(reply.code).to eq('0') }
+    it { expect(reply.description).to include('queued').and(include('0 messages')) }
+    it { expect(reply.error_description).to include('queued 0 messages') }
+  end
 end

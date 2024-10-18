@@ -4,9 +4,7 @@ module SmsTraffic
       OK_REPLY = 'OK'.freeze unless const_defined?(:OK_REPLY)
 
       def ok?
-        fetch_value(hash, :result) == OK_REPLY
-      rescue NoMethodError
-        false
+        result == OK_REPLY && message_infos
       end
 
       def error?
@@ -44,6 +42,7 @@ module SmsTraffic
         message_info = fetch_value(message_infos, :message_info)
 
         return [fetch_value(message_info, :sms_id)] if message_info&.size == 1
+        return [] if message_info.nil?
 
         message_info.each_with_object({}) do |info, hash|
           hash[fetch_value(info, :phone)] = fetch_value(info, :sms_id)
