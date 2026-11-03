@@ -2,7 +2,7 @@
 
 Status: ready for implementation
 Delivery target: none (prepare release only; push, tag, and publish need separate approval)
-Task branch: KON-0000
+Task branch: release-0.1.0
 Review tier: fable
 Gate: `bundle exec rake` (full RSpec + RuboCop), `bundle exec rake build`, packaged-gem load check
 
