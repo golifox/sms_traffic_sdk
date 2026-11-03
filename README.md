@@ -13,6 +13,8 @@ sending of SMS messages and checking delivery statuses.
 
 - Send SMS messages to single or multiple recipients.
 - Check the delivery status of sent messages.
+- Read the account balance.
+- Fail over to the provider's backup host.
 - **TODO:** Support for various message formats and encodings.
 
 
@@ -44,6 +46,7 @@ SmsTraffic.configure do |config|
   config.login          = 'login'
   config.password       = 'password'
   config.host           = 'https://api.smstraffic.ru'
+  config.fallback_host  = 'https://api2.smstraffic.ru' # optional backup host, default nil
   config.originator     = 'default_originator' # optional, can be given per SMS
   config.open_timeout   = 10                   # seconds, default 10
   config.read_timeout   = 30                   # seconds, default 30
@@ -98,13 +101,48 @@ reply.status('8287713301')           # => 'Delivered'; the id may be omitted whe
 Each entry has `sms_id`, `status`, `error`, `submission_date`, `send_date`, `last_status_change_date`
 (strings as sent by the provider), `error?` and `not_found?`.
 
+### Final and delivered statuses
+
+Provider statuses `Delivered`, `Non Delivered`, `Rejected`, `Expired`, `Deleted` and `Unknown status` are final;
+an empty status and `Buffered SMSC` are intermediate (`SmsTraffic::Status::FINAL` / `INTERMEDIATE`).
+Comparison is case-insensitive.
+
+```ruby
+reply = SmsTraffic::Client.status('8287713301')
+reply.final?     # => true
+reply.delivered? # => true; pass an sms id when the reply has several entries
+reply.entry.final?
+
+sms.update_status
+sms.final?       # => true for a final stored status; false for 'not-sent' and 'sent'
+sms.delivered?   # => true only for 'delivered'
+```
+
+### Balance
+
+```ruby
+SmsTraffic::Client.balance.balance # => #<BigDecimal 10025.0>, nil when the reply has no account
+```
+
+The value is returned as the provider sends it; its units are not documented and are not converted.
+
+### Fallback host
+
+Set `config.fallback_host` (the provider documents `https://api2.smstraffic.ru`) to repeat a failed request once
+on the backup host. The request is repeated after `SocketError`, `Errno::ECONNREFUSED`, `Errno::EHOSTUNREACH`,
+`Errno::ENETUNREACH`, `Net::OpenTimeout`, or API error 1000 (temporary server problem). `Client.status` and
+`Client.balance` also retry after a read timeout, a reset connection and HTTP 5xx. `Client.deliver` does not, since
+the provider may already have queued the SMS. The error of the last attempt is raised. With `debug`, the retry is
+logged in one line without credentials.
+
 ### Errors
 
 All errors inherit from `SmsTraffic::Error`:
 
 - `SmsTraffic::ConnectionError` - network, timeout or TLS failure (the original exception is `cause`).
 - `SmsTraffic::HttpError` - non-2xx response; has `status` and `body`.
-- `SmsTraffic::ApiError` - the provider replied `ERROR`; has `code` and `description`.
+- `SmsTraffic::ApiError` - the provider replied `ERROR` (or `ERRO`); has `code` and `description`, and the
+  predicates `retryable?` (1000), `access_denied?` (411, 412), `insufficient_funds?` (415) and `blocked_phone?` (432).
 
 ```ruby
 begin

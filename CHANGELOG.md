@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.2.0 - 2026-11-03
+
+### Added
+
+- `Configuration#fallback_host` (default `nil`). When set, the client repeats a request once on that host after a
+  connection failure that proves the server was not reached (`SocketError`, `Errno::ECONNREFUSED`,
+  `Errno::EHOSTUNREACH`, `Errno::ENETUNREACH`, `Net::OpenTimeout`) or after API error 1000. `Client.status` and
+  `Client.balance` also retry after any `ConnectionError` and HTTP 5xx; `Client.deliver` never does, because the
+  provider may already have queued the SMS. With `debug`, the retry is logged in one line without credentials.
+- `Client.balance` returns an `AccountReply`; `AccountReply#balance` is a `BigDecimal` (units as sent by the
+  provider). `bigdecimal` is a runtime dependency.
+- `SmsTraffic::Status` (`FINAL`, `INTERMEDIATE`), `StatusReply::Entry#final?` / `#delivered?`, the same methods on
+  `StatusReply` (optional `sms_id`) and `Sms#final?` / `#delivered?`.
+- `ApiError#retryable?`, `#access_denied?`, `#insufficient_funds?` and `#blocked_phone?`.
+
+### Fixed
+
+- A provider reply with `<result>ERRO</result>` (the spelling in the provider's own example) is now an
+  `ApiError`. `Reply#api_error?` is true for any present `result` other than `OK`.
+
 ## 0.1.0 - 2026-11-03
 
 ### Breaking changes
