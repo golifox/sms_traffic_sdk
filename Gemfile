@@ -9,7 +9,7 @@ group :development, :test do
   gem 'rake', '~> 13.2'
   gem 'rspec', '~> 3.10'
   gem 'rspec-mocks', '~> 3.10'
-  gem 'rubocop', '~> 1.18'
+  gem 'rubocop', '~> 1.92'
   gem 'rubocop-performance', '~> 1.11'
   gem 'rubocop-rspec', '~> 2.11'
   gem 'simplecov', '~> 0.22'

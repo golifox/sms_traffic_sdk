@@ -19,13 +19,11 @@ module SmsTraffic
     def deliver
       @reply = Client.deliver(phone, message, originator)
 
-      return fail_with(reply.error_description) unless reply.ok?
-
-      @status = 'sent'
-      @id     = reply.sms_id
-      true
+      reply.ok? ? mark_sent : add_error(reply.error_description)
+      reply.ok?
     rescue SmsTraffic::Error => e
-      fail_with(e.message)
+      add_error(e.message)
+      false
     end
 
     # @return [String] the current status; unchanged when the check fails
@@ -35,24 +33,28 @@ module SmsTraffic
       apply_entry(Client.status(id).entry(id))
       status
     rescue SmsTraffic::Error => e
-      fail_with(e.message)
+      add_error(e.message)
       status
     end
 
     private
 
-    def fail_with(error)
+    def mark_sent
+      @status = 'sent'
+      @id     = reply.sms_id
+    end
+
+    def add_error(error)
       @errors << error
-      false
     end
 
     def apply_entry(entry)
       if entry&.error?
-        fail_with(entry.error)
+        add_error(entry.error)
       elsif entry&.status
         @status = entry.status.downcase
       else
-        fail_with("No status returned for sms #{id}")
+        add_error("No status returned for sms #{id}")
       end
     end
 
