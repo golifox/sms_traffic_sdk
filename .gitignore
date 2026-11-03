@@ -10,3 +10,4 @@
 .idea/
 .rspec_status
 .env
+/gemfiles/*.lock

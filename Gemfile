@@ -2,17 +2,4 @@ source 'https://rubygems.org'
 
 gemspec
 
-group :development, :test do
-  gem 'dotenv', '~> 2.7'
-  gem 'fasterer', '~> 0.9'
-  gem 'rack', '~> 3.1.7'
-  gem 'rake', '~> 13.2'
-  gem 'rspec', '~> 3.10'
-  gem 'rspec-mocks', '~> 3.10'
-  gem 'rubocop', '~> 1.92'
-  gem 'rubocop-performance', '~> 1.11'
-  gem 'rubocop-rspec', '~> 2.11'
-  gem 'simplecov', '~> 0.22'
-  gem 'simplecov-cobertura', '~> 3.2'
-  gem 'webmock', '~> 3.14'
-end
+eval_gemfile 'gemfiles/development.gemfile'

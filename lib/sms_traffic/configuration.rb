@@ -17,7 +17,7 @@ module SmsTraffic
 
     def reset!
       ATTRIBUTES.each { |attribute| public_send("#{attribute}=", DEFAULTS[attribute]) }
-      self.xml_parser = Nori.new(advanced_typecasting: false)
+      self.xml_parser = Nori.new(advanced_typecasting: false, parser: :rexml)
     end
 
     def validate!

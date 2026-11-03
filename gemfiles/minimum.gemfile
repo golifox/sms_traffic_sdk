@@ -1,0 +1,10 @@
+source 'https://rubygems.org'
+
+gemspec path: '..'
+
+# Lower bounds of the runtime dependencies in the gemspec.
+gem 'bigdecimal', '3.1.0'
+gem 'nori', '2.8.0'
+gem 'rexml', '3.3.9'
+
+eval_gemfile 'development.gemfile'
