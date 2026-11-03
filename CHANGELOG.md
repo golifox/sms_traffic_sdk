@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.0 - 2026-11-03
+
+### Breaking changes
+
+- An HTTP 200 body that is not an XML `<reply>` element (an HTML error page, plain text, a truncated or empty body)
+  raises `SmsTraffic::MalformedReplyError` instead of returning an empty reply. Its message is
+  `"Malformed reply (N bytes)"`; `#body` keeps the body. `Sms#deliver` returns `false` and records that message
+  instead of `"Sms has not been enqueued: "`. An empty `<reply/>` is still an empty reply.
+- The debug request line shows only `originator`, `want_sms_ids`, `rus`, `operation` and `sms_id`; `phones` and any
+  extra `deliver` option are now `[FILTERED]` too.
+
+### Changed
+
+- `Client.status` and `Client.balance` repeat on the fallback host after `MalformedReplyError`; `Client.deliver`
+  does not, since the provider may already have queued the SMS.
+
 ## 0.3.0 - 2026-11-03
 
 ### Breaking changes
