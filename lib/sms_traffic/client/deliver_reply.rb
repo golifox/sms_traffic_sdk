@@ -1,8 +1,6 @@
 module SmsTraffic
   class Client
     class DeliverReply < Reply
-      OK_RESULT = 'OK'.freeze
-
       # @return [Boolean] result is OK and at least one message was queued
       def ok?
         result == OK_RESULT && !messages.empty?

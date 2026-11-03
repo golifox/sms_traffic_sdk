@@ -1,6 +1,7 @@
 module SmsTraffic
   class Client
     class Reply
+      OK_RESULT = 'OK'.freeze
       ERROR_RESULT = 'ERROR'.freeze
 
       attr_reader :xml, :to_h
@@ -23,8 +24,9 @@ module SmsTraffic
         fetch_value(to_h, :description)
       end
 
+      # The provider documents `ERROR` but its example replies `ERRO`, so any result other than OK is an error.
       def api_error?
-        result == ERROR_RESULT
+        !result.nil? && result != OK_RESULT
       end
 
       private

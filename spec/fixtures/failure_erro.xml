@@ -1,0 +1,5 @@
+<reply>
+  <result>ERRO</result>
+  <code>411</code>
+  <description>invalid login or password</description>
+</reply>
