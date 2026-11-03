@@ -99,7 +99,8 @@ reply.status('8287713301')           # => 'Delivered'; the id may be omitted whe
 ```
 
 Each entry has `sms_id`, `status`, `error`, `submission_date`, `send_date`, `last_status_change_date`
-(strings as sent by the provider), `error?` and `not_found?`.
+(strings as sent by the provider), `error?`, `not_found?`, `final?`, `delivered?` and `status_reported?`
+(true when the provider sent a status element, even an empty one).
 
 ### Final and delivered statuses
 
@@ -131,8 +132,8 @@ The value is returned as the provider sends it; its units are not documented and
 Set `config.fallback_host` (the provider documents `https://api2.smstraffic.ru`) to repeat a failed request once
 on the backup host. The request is repeated after `SocketError`, `Errno::ECONNREFUSED`, `Errno::EHOSTUNREACH`,
 `Errno::ENETUNREACH`, `Net::OpenTimeout`, or API error 1000 (temporary server problem). `Client.status` and
-`Client.balance` also retry after any `ConnectionError` (read timeout, reset connection, TLS failure) and HTTP 5xx. `Client.deliver` does not, since
-the provider may already have queued the SMS. The error of the last attempt is raised. With `debug`, the retry is
+`Client.balance` also retry after any `ConnectionError` (read timeout, reset connection, TLS failure) and HTTP 5xx.
+`Client.deliver` does not, since the provider may already have queued the SMS. The error of the last attempt is raised. With `debug`, the retry is
 logged in one line without credentials.
 
 ### Errors
