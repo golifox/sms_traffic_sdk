@@ -1,3 +1,6 @@
+# Nori loads REXML lazily on the first parse; Reply#parse rescues its exception even with a custom parser.
+require 'rexml/parsers/baseparser'
+
 module SmsTraffic
   class Client
     class Reply
