@@ -29,6 +29,12 @@ RSpec.describe SmsTraffic::Client, 'balance' do
     it { expect(reply.balance).to be_nil }
   end
 
+  context 'with a non-numeric account' do
+    let(:xml_body) { '<reply><account>abc</account></reply>' }
+
+    it { expect(reply.balance).to be_nil }
+  end
+
   context 'when the provider replies with an error' do
     let(:xml_body) { fixture('failure_erro.xml') }
 

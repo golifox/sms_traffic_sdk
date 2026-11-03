@@ -54,8 +54,14 @@ module SmsTraffic
       rescue Error => e
         raise unless config.fallback_host && retry_on_fallback?(e, read_only:)
 
-        log("retry on #{config.fallback_host} after #{e.class}")
+        log("retry on #{config.fallback_host} after #{retry_reason(e)}")
         attempt(reply_class, form_data, config.fallback_host)
+      end
+
+      # Names the root cause and, for an API error, its code; never the message text.
+      def retry_reason(error)
+        reason = (error.cause&.class || error.class).to_s
+        error.is_a?(ApiError) ? "#{reason} #{error.code}" : reason
       end
 
       def attempt(reply_class, form_data, host)

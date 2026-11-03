@@ -121,7 +121,7 @@ sms.delivered?   # => true only for 'delivered'
 ### Balance
 
 ```ruby
-SmsTraffic::Client.balance.balance # => #<BigDecimal 10025.0>, nil when the reply has no account
+SmsTraffic::Client.balance.balance # => 0.10025e5 (BigDecimal), nil when absent or not a number
 ```
 
 The value is returned as the provider sends it; its units are not documented and are not converted.
@@ -131,7 +131,7 @@ The value is returned as the provider sends it; its units are not documented and
 Set `config.fallback_host` (the provider documents `https://api2.smstraffic.ru`) to repeat a failed request once
 on the backup host. The request is repeated after `SocketError`, `Errno::ECONNREFUSED`, `Errno::EHOSTUNREACH`,
 `Errno::ENETUNREACH`, `Net::OpenTimeout`, or API error 1000 (temporary server problem). `Client.status` and
-`Client.balance` also retry after a read timeout, a reset connection and HTTP 5xx. `Client.deliver` does not, since
+`Client.balance` also retry after any `ConnectionError` (read timeout, reset connection, TLS failure) and HTTP 5xx. `Client.deliver` does not, since
 the provider may already have queued the SMS. The error of the last attempt is raised. With `debug`, the retry is
 logged in one line without credentials.
 

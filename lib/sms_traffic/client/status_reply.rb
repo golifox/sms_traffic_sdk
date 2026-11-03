@@ -4,8 +4,14 @@ module SmsTraffic
       NOT_FOUND = /no such message/i
 
       Entry = Struct.new(
-        :sms_id, :status, :error, :submission_date, :send_date, :last_status_change_date, keyword_init: true
+        :sms_id, :status, :status_reported, :error, :submission_date, :send_date, :last_status_change_date,
+        keyword_init: true
       ) do
+        # @return [Boolean] the provider sent a status element, even an empty one (an intermediate status)
+        def status_reported?
+          status_reported == true
+        end
+
         def error?
           !error.nil?
         end
@@ -65,6 +71,10 @@ module SmsTraffic
         to_h.empty? ? [] : [to_h]
       end
 
+      def key?(source, key)
+        source.is_a?(Hash) && (source.key?(key.to_s) || source.key?(key.to_sym))
+      end
+
       def blank_to_nil(value)
         stripped = value&.strip
         stripped unless stripped.nil? || stripped.empty?
@@ -74,6 +84,7 @@ module SmsTraffic
         Entry.new(
           sms_id:                  fetch_value(source, :sms_id),
           status:                  fetch_value(source, :status),
+          status_reported:         key?(source, :status),
           error:                   blank_to_nil(fetch_value(source, :error)),
           # The provider spells this field "submition_date".
           submission_date:         fetch_value(source, :submition_date),

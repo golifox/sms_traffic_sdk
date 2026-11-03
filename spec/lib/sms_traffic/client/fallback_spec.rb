@@ -164,8 +164,22 @@ RSpec.describe SmsTraffic::Client, 'fallback host' do
 
       retry_lines = output.string.lines.grep(/retry/i)
       expect(retry_lines.size).to eq(1)
-      expect(retry_lines.first).to include(fallback_host)
+      expect(retry_lines.first).to include(fallback_host, 'SocketError')
       [login, password, 'top secret text'].each { |secret| expect(output.string).not_to include(secret) }
+    end
+  end
+
+  describe 'debug logging of an API error' do
+    let(:output) { StringIO.new }
+
+    it 'names the error class and code' do
+      SmsTraffic.configuration.debug = true
+      SmsTraffic.configuration.logger = Logger.new(output)
+      stub_request(:post, uri).to_return(body: temporary_error)
+      stub_request(:post, fallback_uri).to_return(body: ok_deliver)
+      described_class.deliver(phone, 'top secret text')
+
+      expect(output.string.lines.grep(/retry/i).first).to include('ApiError', '1000')
     end
   end
 

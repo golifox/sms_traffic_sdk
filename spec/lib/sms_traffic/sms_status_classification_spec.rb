@@ -24,10 +24,34 @@ RSpec.describe SmsTraffic::Sms, 'status classification' do
     expect([sms.status, sms.final?, sms.delivered?]).to eq(['sent', false, false])
   end
 
-  ['', 'Buffered SMSC'].each do |status|
-    it "is not final for #{status.inspect}" do
-      expect(sent_sms_with_provider_status(status)).not_to be_final
+  { '' => 'sent', 'Buffered SMSC' => 'buffered smsc' }.each do |provider_status, expected|
+    it "is not final and has no errors for #{provider_status.inspect}" do
+      result = sent_sms_with_provider_status(provider_status)
+
+      expect([result.status, result.final?, result.errors]).to eq([expected, false, []])
     end
+  end
+
+  it 'keeps the sent status without errors for a self-closing status element' do
+    stub_request(:post, uri).with(body: hash_including(phones: '79991112233'))
+                            .to_return(body: fixture('deliver/success_single.xml').sub('1000472891', '1'))
+    stub_request(:post, uri).with(body: hash_including(operation: 'status'))
+                            .to_return(body: '<reply><sms_id>1</sms_id><status/></reply>')
+    sms.deliver
+    sms.update_status
+
+    expect([sms.status, sms.errors]).to eq(['sent', []])
+  end
+
+  it 'reports an error when the entry has neither status nor error' do
+    stub_request(:post, uri).with(body: hash_including(phones: '79991112233'))
+                            .to_return(body: fixture('deliver/success_single.xml').sub('1000472891', '1'))
+    stub_request(:post, uri).with(body: hash_including(operation: 'status'))
+                            .to_return(body: '<reply><sms_id>1</sms_id></reply>')
+    sms.deliver
+    sms.update_status
+
+    expect(sms.errors).to eq(['No status returned for sms 1'])
   end
 
   it 'is final and delivered for Delivered' do

@@ -63,6 +63,9 @@ module SmsTraffic
         add_error(entry.error)
       elsif entry&.status
         @status = entry.status.downcase
+      elsif entry&.status_reported?
+        # An empty status element is an intermediate provider status: keep the current one.
+        nil
       else
         add_error("No status returned for sms #{id}")
       end

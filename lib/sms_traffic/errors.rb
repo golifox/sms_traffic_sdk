@@ -15,7 +15,7 @@ module SmsTraffic
     end
   end
 
-  # HTTP 200 reply whose result is ERROR.
+  # HTTP 200 reply whose `result` is not `OK` (`ERROR`, `ERRO`).
   class ApiError < Error
     attr_reader :code, :description
 

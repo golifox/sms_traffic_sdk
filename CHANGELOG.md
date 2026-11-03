@@ -19,6 +19,9 @@
 
 - A provider reply with `<result>ERRO</result>` (the spelling in the provider's own example) is now an
   `ApiError`. `Reply#api_error?` is true for any present `result` other than `OK`.
+- `Sms#update_status` no longer records "No status returned" for an empty `<status>` element (an intermediate
+  provider status); the status stays `sent`. `StatusReply::Entry#status_reported?` tells an empty status from an
+  absent one.
 
 ## 0.1.0 - 2026-11-03
 
