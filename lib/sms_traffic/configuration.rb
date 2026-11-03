@@ -22,7 +22,7 @@ module SmsTraffic
       self.open_timeout   = 10
       self.read_timeout   = 30
       self.validate_phone = true
-      self.xml_parser     = Nori.new(advanced_typecasting: true)
+      self.xml_parser     = Nori.new(advanced_typecasting: false)
     end
 
     def validate!

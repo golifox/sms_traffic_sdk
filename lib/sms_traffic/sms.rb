@@ -47,12 +47,12 @@ module SmsTraffic
     end
 
     def apply_entry(entry)
-      if entry.nil?
-        fail_with("No status returned for sms #{id}")
-      elsif entry.error?
+      if entry&.error?
         fail_with(entry.error)
-      elsif entry.status
+      elsif entry&.status
         @status = entry.status.downcase
+      else
+        fail_with("No status returned for sms #{id}")
       end
     end
 

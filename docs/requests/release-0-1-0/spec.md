@@ -24,7 +24,7 @@ and the CHANGELOG carries a migration note. Consumer repositories are not edited
 
 ### Configuration
 5. `Configuration` is a plain class (no `Singleton`); `SmsTraffic.configuration` memoizes one instance; `reset!` restores defaults.
-6. Defaults: `debug: false`, `logger: nil`, `open_timeout: 10`, `read_timeout: 30`, `validate_phone: true`, `xml_parser: Nori.new(advanced_typecasting: true)`.
+6. Defaults: `debug: false`, `logger: nil`, `open_timeout: 10`, `read_timeout: 30`, `validate_phone: true`, `xml_parser: Nori.new(advanced_typecasting: false)`.
 7. `validate!` requires login, password, host, and a logger when `debug` is true. It no longer requires `originator` (it can be given per SMS).
 8. `to_h` lists every attribute. Remove `values_at` if unused.
 

@@ -50,7 +50,7 @@ module SmsTraffic
         log("request POST #{uri} #{filter(form_data)}")
 
         response = perform(uri, form_data, config)
-        log("response #{response.code} #{response.body}")
+        log("response #{response.code} (#{response.body.to_s.bytesize} bytes)")
         successful_body(response)
       rescue *CONNECTION_ERRORS => e
         raise ConnectionError, "#{e.class}: #{e.message}"

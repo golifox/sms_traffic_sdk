@@ -121,6 +121,15 @@ RSpec.describe SmsTraffic::Client, 'errors and transport' do
       expect(output.string).not_to include(login)
     end
 
+    it 'does not log the response body' do
+      body = "<reply><result>ERROR</result><description>#{login} #{password} #{message}</description></reply>"
+      stub_request(:post, uri).to_return(body:)
+
+      expect { described_class.deliver(phone, message) }.to raise_error(SmsTraffic::ApiError)
+      expect(output.string).to match(/response 200 \(\d+ bytes\)/)
+      [login, password, message].each { |secret| expect(output.string).not_to include(secret) }
+    end
+
     it 'never enables Net::HTTP debug output' do
       expect_any_instance_of(Net::HTTP).not_to receive(:set_debug_output)
       described_class.deliver(phone, message)

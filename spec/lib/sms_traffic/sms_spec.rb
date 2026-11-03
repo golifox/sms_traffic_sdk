@@ -207,6 +207,20 @@ RSpec.describe SmsTraffic::Sms do
         expect(sms.errors).to eq(['no such message or this message does not belong to you'])
       end
 
+      it 'records a missing entry when the reply is for another sms and keeps the status' do
+        stub_status('<reply><sms_id>999</sms_id><status>Delivered</status></reply>')
+
+        expect(update_status).to eq('sent')
+        expect(sms.errors).to eq(['No status returned for sms 8287713301'])
+      end
+
+      it 'records a missing status when the entry has neither status nor error' do
+        stub_status('<reply><sms_id>8287713301</sms_id></reply>')
+
+        expect(update_status).to eq('sent')
+        expect(sms.errors).to eq(['No status returned for sms 8287713301'])
+      end
+
       it 'records an HTTP error and keeps the status' do
         stub_status('oops', status: 502)
 

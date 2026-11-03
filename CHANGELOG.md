@@ -49,3 +49,12 @@
 - Replace `reply.hash` with `reply.to_h`, and `sms.response` with `sms.reply`.
 - Treat `reply.sms_ids` as an Array; use `reply.messages` for per-phone data.
 - Set `config.logger` explicitly if you relied on the `$stdout` default with `debug = true`.
+- `Client.deliver` and `Client.status` no longer raise `SocketError`, `SystemCallError` (`Errno::*`), `IOError`,
+  `Net::OpenTimeout`, `Net::ReadTimeout` or `OpenSSL::SSL::SSLError`; rescue `SmsTraffic::ConnectionError` (the
+  original exception is in `cause`). `Sms#deliver` and `Sms#update_status` already rescue `SmsTraffic::Error` into
+  `errors`.
+- Replace `response.as_json` / `sms.response.as_json` with `reply.to_h` / `sms.reply&.to_h`.
+- Replace `response.success?` checks with `rescue SmsTraffic::Error`.
+- Replace `reply.hash["send_date"]` / `reply.hash["status"]` with `reply.send_date` / `reply.status`.
+- The default XML parser no longer typecasts: values such as dates and `true` stay provider strings
+  (`Nori.new(advanced_typecasting: false)`).

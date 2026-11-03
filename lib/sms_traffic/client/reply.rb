@@ -6,8 +6,9 @@ module SmsTraffic
       attr_reader :xml, :to_h
 
       def initialize(xml, xml_parser: SmsTraffic.configuration.xml_parser)
-        @xml  = xml.gsub(/\s+/, ' ')
-        @to_h = fetch_value(xml_parser.parse(@xml), :reply) || {}
+        @xml = xml.gsub(/\s+/, ' ')
+        parsed = fetch_value(xml_parser.parse(@xml), :reply)
+        @to_h  = parsed.is_a?(Hash) ? parsed : {}
       end
 
       def result
