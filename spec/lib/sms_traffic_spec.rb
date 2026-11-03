@@ -1,44 +1,44 @@
 RSpec.describe SmsTraffic do
   describe '.configure' do
     context 'when validations passed' do
-      let(:attributes) do
-        { login: 'username', password: 'password', host: 'http://example.com', originator: 'q', validate_phone: false }
-      end
-
       it 'can be configured' do
         described_class.configure do |config|
-          config.login          = attributes[:login]
-          config.password       = attributes[:password]
-          config.host           = attributes[:host]
-          config.originator     = attributes[:originator]
+          config.login          = 'username'
+          config.password       = 'password'
+          config.host           = 'http://example.com'
+          config.originator     = 'q'
           config.validate_phone = false
         end
 
-        expect(described_class.configuration).to have_attributes(attributes)
+        expect(described_class.configuration).to have_attributes(
+          login: 'username', password: 'password', host: 'http://example.com', originator: 'q', validate_phone: false
+        )
+      end
+
+      it 'does not require a default originator' do
+        expect do
+          described_class.configure do |config|
+            config.login    = 'usr'
+            config.password = 'pass'
+            config.host     = 'http://example.com'
+          end
+        end.not_to raise_error
       end
     end
 
     context 'when validations failed' do
-      invalid_attributes = [
-        [{ login: nil, password: 'pass', host: 'http://example.com', originator: 'q', debug: true },
-         'login not specified'],
-        [{ login: 'usr', password: nil, host: 'http://example.com', originator: 'q', debug: true },
-         'password not specified'],
-        [{ login: 'usr', password: 'pass', host: nil, debug: true, originator: 'q' }, 'host not specified'],
-        [{ login: 'usr', password: 'pass', host: 'http://example.com', originator: nil, debug: true },
-         'originator not specified'],
-        [{ login: 'usr', password: 'pass', host: 'http://example.com', debug: true }, 'debug logger not specified']
-      ]
+      let(:valid) { { login: 'usr', password: 'pass', host: 'http://example.com' } }
 
-      invalid_attributes.each do |attributes, scenario|
-        it "raises error when #{scenario}" do
+      {
+        'login'        => { login: nil },
+        'password'     => { password: nil },
+        'host'         => { host: nil },
+        'debug logger' => { debug: true }
+      }.each do |scenario, override|
+        it "raises error when #{scenario} not specified" do
           expect do
             described_class.configure do |config|
-              config.login    = attributes[:login]
-              config.password = attributes[:password]
-              config.host     = attributes[:host]
-              config.debug    = attributes[:debug]
-              config.logger   = attributes[:logger]
+              valid.merge(override).each { |key, value| config.public_send("#{key}=", value) }
             end
           end.to raise_error(ArgumentError)
         end
@@ -47,20 +47,39 @@ RSpec.describe SmsTraffic do
   end
 
   describe '.configuration' do
-    subject { described_class.configuration }
+    subject(:configuration) { described_class.configuration }
 
-    it 'returns configuration' do
-      is_expected.to be_a(SmsTraffic::Configuration)
+    it { is_expected.to be_a(SmsTraffic::Configuration) }
+    it { is_expected.to equal(described_class.configuration) }
+
+    it 'is not a singleton' do
+      expect(SmsTraffic::Configuration.new).not_to equal(configuration)
     end
 
-    it 'returns the same instance' do
-      is_expected.to eq(described_class.configuration)
+    it 'restores defaults on reset!' do
+      configuration.login = 'changed'
+      configuration.read_timeout = 99
+      configuration.reset!
+
+      expect(configuration).to have_attributes(
+        login: nil, password: nil, host: nil, originator: nil, debug: false, logger: nil,
+        open_timeout: 10, read_timeout: 30, validate_phone: true
+      )
+      expect(configuration.xml_parser).to be_a(Nori)
     end
 
-    it 'returns sets default fields' do
-      subject.reset!
+    it 'lists every attribute in to_h' do
+      expect(configuration.to_h.keys).to contain_exactly(
+        :login, :password, :host, :originator, :debug, :logger,
+        :open_timeout, :read_timeout, :validate_phone, :xml_parser
+      )
+    end
+  end
 
-      is_expected.to have_attributes(subject.send(:default_configuration))
+  describe 'loading' do
+    it 'is loadable through the gem name' do
+      expect(system(RbConfig.ruby, '-I', File.expand_path('../../lib', __dir__), '-e',
+                    "require 'sms_traffic_sdk'; exit(defined?(SmsTraffic::Sms) ? 0 : 1)")).to be(true)
     end
   end
 end

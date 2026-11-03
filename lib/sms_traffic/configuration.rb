@@ -1,75 +1,39 @@
-require 'singleton'
 require 'nori'
 
 module SmsTraffic
   class Configuration
-    include Singleton
+    ATTRIBUTES = %i[
+      login password host originator debug logger open_timeout read_timeout validate_phone xml_parser
+    ].freeze
 
-    attr_accessor :login, :password, :host, :originator, :debug, :logger, :xml_parser, :validate_phone
+    attr_accessor(*ATTRIBUTES)
 
     def initialize
-      self.debug          = default_configuration[:debug]
-      self.logger         = default_configuration[:logger]
-      self.xml_parser     = default_configuration[:xml_parser]
-      self.validate_phone = default_configuration[:validate_phone]
-      super
+      reset!
     end
 
     def reset!
-      default_configuration.each do |key, value|
-        send("#{key}=", value)
-      end
+      self.login          = nil
+      self.password       = nil
+      self.host           = nil
+      self.originator     = nil
+      self.debug          = false
+      self.logger         = nil
+      self.open_timeout   = 10
+      self.read_timeout   = 30
+      self.validate_phone = true
+      self.xml_parser     = Nori.new(advanced_typecasting: true)
     end
 
     def validate!
-      validation_rules.each do |key, value|
-        raise ArgumentError, "#{key} should be defined for #{self}." if value.nil?
-      end
+      raise ArgumentError, 'login should be defined' if login.nil?
+      raise ArgumentError, 'password should be defined' if password.nil?
+      raise ArgumentError, 'host should be defined' if host.nil?
+      raise ArgumentError, 'logger should be defined when debug is enabled' if debug && logger.nil?
     end
 
     def to_h
-      {
-        login:      login,
-        password:   password,
-        host:       host,
-        originator: originator,
-        debug:      debug,
-        logger:     logger,
-        xml_parser: xml_parser
-      }
-    end
-
-    def values_at(*keys)
-      to_h.values_at(*keys)
-    end
-
-    private
-
-    def default_configuration
-      {
-        login:          nil,
-        password:       nil,
-        host:           nil,
-        originator:     nil,
-        debug:          false,
-        logger:         $stdout,
-        xml_parser:     default_xml_parser,
-        validate_phone: true
-      }
-    end
-
-    def validation_rules
-      {
-        'Login'        => login,
-        'Password'     => password,
-        'Server'       => host,
-        'Originator'   => originator,
-        'Debug logger' => debug && !logger ? nil : true
-      }
-    end
-
-    def default_xml_parser
-      @default_xml_parser ||= Nori.new(advanced_typecasting: true).freeze
+      ATTRIBUTES.to_h { |attribute| [attribute, public_send(attribute)] }
     end
   end
 end

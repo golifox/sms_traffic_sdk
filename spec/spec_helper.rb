@@ -11,7 +11,7 @@ require 'sms_traffic/version'
 
 # Spec support
 support_dir = File.expand_path('support/**/*.rb', __dir__)
-Dir.glob(support_dir).sort.each { |file| require file }
+Dir.glob(support_dir).each { |file| require file }
 
 # RSpec configuration
 RSpec.configure do |config|

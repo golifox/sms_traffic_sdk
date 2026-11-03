@@ -1,19 +1,16 @@
-require 'zeitwerk'
-
-loader = Zeitwerk::Loader.for_gem
-loader.ignore("#{__dir__}/sms_traffic/version.rb")
-loader.enable_reloading
-loader.setup
-
 require_relative 'sms_traffic/version'
+require_relative 'sms_traffic/errors'
+require_relative 'sms_traffic/configuration'
+require_relative 'sms_traffic/client'
+require_relative 'sms_traffic/sms'
 
 module SmsTraffic
   class << self
     def configuration
-      @configuration ||= Configuration.instance
+      @configuration ||= Configuration.new
     end
 
-    def configure(&_block)
+    def configure
       yield(configuration) if block_given?
       configuration.validate!
     end
