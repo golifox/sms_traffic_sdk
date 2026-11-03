@@ -8,7 +8,7 @@ module SmsTraffic
 
       def initialize(xml, xml_parser: SmsTraffic.configuration.xml_parser)
         @xml = xml.gsub(/\s+/, ' ')
-        parsed = fetch_value(xml_parser.parse(@xml), :reply)
+        parsed = fetch_value(parse(xml_parser), :reply)
         @to_h  = parsed.is_a?(Hash) ? parsed : {}
       end
 
@@ -30,6 +30,13 @@ module SmsTraffic
       end
 
       private
+
+      # A body that is not well-formed XML is an empty reply, as before the REXML parser.
+      def parse(xml_parser)
+        xml_parser.parse(@xml)
+      rescue REXML::ParseException
+        {}
+      end
 
       def fetch_value(source, key)
         return unless source.is_a?(Hash)

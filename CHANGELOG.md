@@ -12,6 +12,8 @@
 - The default XML parser is `Nori.new(advanced_typecasting: false, parser: :rexml)`. Every fixture parses to the
   same hash as with Nokogiri. `rexml` (`>= 3.3.9`, after the 2024 DoS fixes) is a new runtime dependency; a custom
   `xml_parser` is still possible.
+- A body that is not well-formed XML (an HTML error page, plain text, a truncated reply) keeps the 0.2.0 behavior:
+  the reply is empty, so `Sms#deliver` returns `false` and `Client.*` return a reply with an empty hash.
 - Runtime dependency lower bounds are tested: `gemfiles/minimum.gemfile` pins `nori` 2.8.0, `rexml` 3.3.9 and
   `bigdecimal` 3.1.0, and the suite passes with them. CI runs it as `test-minimum` on Ruby 3.1 and 3.4; `publish`
   waits for it.
