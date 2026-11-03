@@ -9,10 +9,11 @@ module SmsTraffic
 
       attr_reader :xml, :to_h
 
+      # @raise [MalformedReplyError] the body is not an XML `<reply>` element
       def initialize(xml, xml_parser: SmsTraffic.configuration.xml_parser)
-        @xml = xml.gsub(/\s+/, ' ')
-        parsed = fetch_value(parse(xml_parser), :reply)
-        @to_h  = parsed.is_a?(Hash) ? parsed : {}
+        @xml  = xml.to_s.gsub(/\s+/, ' ')
+        @to_h = reply_hash(parse(xml_parser))
+        raise MalformedReplyError, xml if @to_h.nil?
       end
 
       def result
@@ -34,11 +35,18 @@ module SmsTraffic
 
       private
 
-      # A body that is not well-formed XML is an empty reply, as before the REXML parser.
       def parse(xml_parser)
         xml_parser.parse(@xml)
       rescue REXML::ParseException
-        {}
+        nil
+      end
+
+      # An empty `<reply/>` carries no data; a missing `<reply>` element or one holding only text is malformed.
+      def reply_hash(parsed)
+        return unless parsed.is_a?(Hash) && (parsed.key?('reply') || parsed.key?(:reply))
+
+        reply = fetch_value(parsed, :reply) || {}
+        reply if reply.is_a?(Hash)
       end
 
       def fetch_value(source, key)

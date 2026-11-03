@@ -121,6 +121,23 @@ RSpec.describe SmsTraffic::Client, 'errors and transport' do
       expect(output.string).not_to include(login)
     end
 
+    it 'filters phones and extra options but keeps the allowlisted params' do
+      described_class.deliver(phone, message, 'brand', 'individual_messages' => "#{phone}:x", start_date: 'later-today')
+
+      request_line = output.string.lines.grep(/request/i).first
+      expect(request_line).not_to include(phone)
+      expect(request_line).not_to include('later-today')
+      expect(request_line).to include('originator', 'brand', 'want_sms_ids', 'rus')
+    end
+
+    it 'keeps sms ids in a status request line' do
+      stub_request(:post, uri).to_return(body: fixture('status/success_single.xml'))
+
+      described_class.status('987654321')
+
+      expect(output.string.lines.grep(/request/i).first).to include('987654321', 'status')
+    end
+
     it 'does not log the response body' do
       body = "<reply><result>ERROR</result><description>#{login} #{password} #{message}</description></reply>"
       stub_request(:post, uri).to_return(body:)

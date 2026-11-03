@@ -14,8 +14,17 @@ RSpec.describe SmsTraffic::Client::Reply do
     expect(JSON.parse(described_class.new(xml).to_h.to_json)).to include('description' => 'login param is missing')
   end
 
-  it 'treats a non-Hash parsed reply as empty' do
-    expect(described_class.new('<reply>hi</reply>').to_h).to eq({})
+  it 'treats an empty reply element as an empty reply' do
+    expect(described_class.new('<reply/>').to_h).to eq({})
+  end
+
+  it 'raises MalformedReplyError for a reply element holding only text' do
+    expect { described_class.new('<reply>hi</reply>') }.to raise_error(SmsTraffic::MalformedReplyError)
+  end
+
+  it 'raises MalformedReplyError for well-formed XML without a reply element' do
+    expect { described_class.new('<html><body>Bad Gateway</body></html>') }
+      .to raise_error(SmsTraffic::MalformedReplyError, 'Malformed reply (37 bytes)')
   end
 
   it 'keeps ISO-looking dates and booleans as provider strings' do

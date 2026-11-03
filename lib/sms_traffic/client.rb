@@ -10,7 +10,8 @@ module SmsTraffic
   class Client
     ENDPOINT = 'multi.php'.freeze
     FILTERED = '[FILTERED]'.freeze
-    FILTERED_PARAMS = %i[login password message].freeze
+    # The only request params the debug log shows; every other value, phones and options included, is FILTERED.
+    LOGGED_PARAMS = %i[originator want_sms_ids rus operation sms_id].freeze
     CONNECTION_ERRORS = [
       SocketError, SystemCallError, IOError, Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError
     ].freeze
@@ -25,7 +26,7 @@ module SmsTraffic
       # @param originator [String] originator (subject), defaults to the configured one
       # @param options [Hash] additional options
       # @return [DeliverReply]
-      # @raise [ConnectionError, HttpError, ApiError]
+      # @raise [ConnectionError, HttpError, MalformedReplyError, ApiError]
       def deliver(phone, message, originator = nil, **options)
         originator ||= SmsTraffic.configuration.originator
         request(DeliverReply, deliver_params(phone, message, originator, **options), read_only: false)
@@ -33,13 +34,13 @@ module SmsTraffic
 
       # @param sms_ids [Array<String>] sms ids
       # @return [StatusReply]
-      # @raise [ConnectionError, HttpError, ApiError]
+      # @raise [ConnectionError, HttpError, MalformedReplyError, ApiError]
       def status(*sms_ids)
         request(StatusReply, status_params(sms_ids), read_only: true)
       end
 
       # @return [AccountReply]
-      # @raise [ConnectionError, HttpError, ApiError]
+      # @raise [ConnectionError, HttpError, MalformedReplyError, ApiError]
       def balance
         request(AccountReply, account_params, read_only: true)
       end
@@ -76,11 +77,14 @@ module SmsTraffic
       def retry_on_fallback?(error, read_only:)
         case error
         when ApiError then error.retryable?
-        when ConnectionError then read_only || UNREACHABLE_ERRORS.any? { |klass| error.cause.is_a?(klass) }
+        when MalformedReplyError then read_only
+        when ConnectionError then read_only || unreachable?(error)
         when HttpError then read_only && error.status >= 500
         else false
         end
       end
+
+      def unreachable?(error) = UNREACHABLE_ERRORS.any? { |klass| error.cause.is_a?(klass) }
 
       # @param form_data [Hash<Symbol, String|Integer>]
       # @return [String] response body
@@ -118,7 +122,7 @@ module SmsTraffic
       end
 
       def filter(form_data)
-        form_data.to_h { |key, value| [key, FILTERED_PARAMS.include?(key) ? FILTERED : value] }
+        form_data.to_h { |key, value| [key, LOGGED_PARAMS.include?(key.to_sym) ? value : FILTERED] }
       end
 
       def deliver_params(phone, message, originator, **options)

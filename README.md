@@ -58,7 +58,8 @@ end
 
 `login`, `password` and `host` are required; `logger` is required when `debug` is enabled.
 With `debug` on, one request line and one response line are written through `logger.debug`;
-`login`, `password` and `message` are replaced with `[FILTERED]`.
+only `originator`, `want_sms_ids`, `rus`, `operation` and `sms_id` are shown, every other param (credentials,
+`phones`, `message`, extra options) is replaced with `[FILTERED]`.
 
 Send an SMS:
 
@@ -132,7 +133,8 @@ The value is returned as the provider sends it; its units are not documented and
 Set `config.fallback_host` (the provider documents `https://api2.smstraffic.ru`) to repeat a failed request once
 on the backup host. The request is repeated after `SocketError`, `Errno::ECONNREFUSED`, `Errno::EHOSTUNREACH`,
 `Errno::ENETUNREACH`, `Net::OpenTimeout`, or API error 1000 (temporary server problem). `Client.status` and
-`Client.balance` also retry after any `ConnectionError` (read timeout, reset connection, TLS failure) and HTTP 5xx.
+`Client.balance` also retry after any `ConnectionError` (read timeout, reset connection, TLS failure), HTTP 5xx and
+`MalformedReplyError`.
 `Client.deliver` does not, since the provider may already have queued the SMS. The error of the last attempt is raised. With `debug`, the retry is
 logged in one line without credentials.
 
@@ -147,6 +149,8 @@ All errors inherit from `SmsTraffic::Error`:
 
 - `SmsTraffic::ConnectionError` - network, timeout or TLS failure (the original exception is `cause`).
 - `SmsTraffic::HttpError` - non-2xx response; has `status` and `body`.
+- `SmsTraffic::MalformedReplyError` - HTTP 200 whose body is not an XML `<reply>` element (an HTML error page, plain
+  text, a truncated reply); has `body`, the message gives only its size.
 - `SmsTraffic::ApiError` - the provider replied `ERROR` (or `ERRO`); has `code` and `description`, and the
   predicates `retryable?` (1000), `access_denied?` (411, 412), `insufficient_funds?` (415) and `blocked_phone?` (432).
 

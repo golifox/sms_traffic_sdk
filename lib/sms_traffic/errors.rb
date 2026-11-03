@@ -15,6 +15,16 @@ module SmsTraffic
     end
   end
 
+  # HTTP 200 body that is not an XML `<reply>` element: an HTML error page, plain text, a truncated reply.
+  class MalformedReplyError < Error
+    attr_reader :body
+
+    def initialize(body)
+      @body = body
+      super("Malformed reply (#{body.to_s.bytesize} bytes)")
+    end
+  end
+
   # HTTP 200 reply whose `result` is not `OK` (`ERROR`, `ERRO`).
   class ApiError < Error
     attr_reader :code, :description

@@ -68,6 +68,14 @@ RSpec.describe SmsTraffic::Client, 'fallback host' do
       expect(backup).not_to have_been_requested
     end
 
+    it 'does not use the fallback after a malformed reply' do
+      stub_request(:post, uri).to_return(body: '<html>Bad Gateway</html>')
+      backup = stub_request(:post, fallback_uri).to_return(body: ok_deliver)
+
+      expect { described_class.deliver(phone, 'text') }.to raise_error(SmsTraffic::MalformedReplyError)
+      expect(backup).not_to have_been_requested
+    end
+
     it 'raises the error of the last attempt' do
       stub_request(:post, uri).to_raise(SocketError)
       stub_request(:post, fallback_uri).to_return(body: temporary_error)
@@ -108,6 +116,12 @@ RSpec.describe SmsTraffic::Client, 'fallback host' do
 
     it 'retries status after API error 1000' do
       stub_request(:post, uri).to_return(body: temporary_error)
+
+      expect(described_class.status('8287713301').status).to eq('Delivered')
+    end
+
+    it 'retries status after a malformed reply' do
+      stub_request(:post, uri).to_return(body: '<html>Bad Gateway</html>')
 
       expect(described_class.status('8287713301').status).to eq('Delivered')
     end
