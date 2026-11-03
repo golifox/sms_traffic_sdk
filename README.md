@@ -136,6 +136,11 @@ on the backup host. The request is repeated after `SocketError`, `Errno::ECONNRE
 `Client.deliver` does not, since the provider may already have queued the SMS. The error of the last attempt is raised. With `debug`, the retry is
 logged in one line without credentials.
 
+### XML parser
+
+Replies are parsed with Nori and its pure-Ruby REXML backend, so no native extension is needed. To use another
+parser, set `config.xml_parser` to any object that responds to `parse(xml)` and returns a Hash.
+
 ### Errors
 
 All errors inherit from `SmsTraffic::Error`:
