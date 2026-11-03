@@ -1,9 +1,9 @@
 # SmsTraffic
 
 [![Gem Version](https://badge.fury.io/rb/sms_traffic_sdk.svg)](https://badge.fury.io/rb/sms_traffic_sdk)
-[![Maintainability](https://api.codeclimate.com/v1/badges/bb4795be5024dd81d927/maintainability)](https://codeclimate.com/github/golifox/sms_traffic/maintainability)
-[![Coverage](https://codecov.io/github/golifox/sms_traffic/graph/badge.svg?token=74C0YBJP3F)](https://codecov.io/github/golifox/sms_traffic)
-[![CI](https://github.com/golifox/sms_traffic/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/golifox/sms_traffic/actions/workflows/ci.yml)
+[![Maintainability](https://api.codeclimate.com/v1/badges/bb4795be5024dd81d927/maintainability)](https://codeclimate.com/github/golifox/sms_traffic_sdk/maintainability)
+[![Coverage](https://codecov.io/github/golifox/sms_traffic_sdk/graph/badge.svg?token=74C0YBJP3F)](https://codecov.io/github/golifox/sms_traffic_sdk)
+[![CI](https://github.com/golifox/sms_traffic_sdk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/golifox/sms_traffic_sdk/actions/workflows/ci.yml)
 
 Ruby Gem as a software development kit (SDK) that facilitates interaction with the SMS Traffic HTTP API (smstraffic.ru/api).
 This gem provides a convenient wrapper to integrate SMS Traffic services within Ruby applications, allowing for easy 
@@ -119,7 +119,7 @@ end
 
 # Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/golifox/sms_traffic.
+Bug reports and pull requests are welcome on GitHub at https://github.com/golifox/sms_traffic_sdk.
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 

@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'Ruby Gem as a SDK for interacting with the SMS Traffic HTTP API (smstraffic.ru/api).
                         This gem provides a convenient way to integrate SMS Traffic services into Ruby applications,
                         enabling tasks such as sending SMS messages, checking delivery status, and others.'
-  spec.homepage      = 'https://github.com/golifox/sms_traffic'
+  spec.homepage      = 'https://github.com/golifox/sms_traffic_sdk'
   spec.license       = 'MIT'
 
   spec.files         = Dir['lib/**/*.rb', 'README.md', 'LICENSE', 'CHANGELOG.md']
@@ -25,6 +25,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'nori', '~> 2.8'
 
   spec.metadata['rubygems_mfa_required'] = 'true'
-  spec.metadata['source_code_uri'] = 'https://github.com/golifox/sms_traffic'
-  spec.metadata['changelog_uri'] = 'https://github.com/golifox/sms_traffic/blob/main/CHANGELOG.md'
+  spec.metadata['source_code_uri'] = 'https://github.com/golifox/sms_traffic_sdk'
+  spec.metadata['changelog_uri'] = 'https://github.com/golifox/sms_traffic_sdk/blob/main/CHANGELOG.md'
 end
