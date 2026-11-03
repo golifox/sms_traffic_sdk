@@ -46,6 +46,14 @@ jobs:
       - name: RSpec
         run: bundle exec rspec
 
+      # Loads the packaged gem outside Bundler, so a missing file or require hidden by dev dependencies fails here.
+      - name: Smoke-test the built gem
+        run: |
+          gem build sms_traffic_sdk.gemspec
+          gem install --no-document ./sms_traffic_sdk-*.gem
+          cd "$RUNNER_TEMP"
+          ruby -e 'require "sms_traffic_sdk"; puts SmsTraffic::VERSION'
+
       - name: Upload coverage to Codecov
         if: matrix.ruby-version == '3.3'
         uses: codecov/codecov-action@v5
@@ -58,6 +66,9 @@ jobs:
     needs: [lint, test]
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # RubyGems trusted publishing (OIDC)
     steps:
       - uses: actions/checkout@v4
 
@@ -79,7 +90,8 @@ jobs:
       - name: Build gem
         run: gem build sms_traffic_sdk.gemspec
 
+      # rubygems_mfa_required rejects API-key pushes without an OTP; a trusted publisher token is accepted.
+      - uses: rubygems/configure-rubygems-credentials@v2.1.0
+
       - name: Push gem to RubyGems
-        env:
-          GEM_HOST_API_KEY: ${{ secrets.GEM_HOST_API_KEY }}
         run: gem push sms_traffic_sdk-*.gem

@@ -21,6 +21,9 @@
 - `Sms#response` is replaced by `Sms#reply`. `Sms#update_status` always returns the status String, and `Sms#deliver`
   records `SmsTraffic::Error`s in `errors` instead of the HTTP code.
 - The `konsierge-sms.rb` executable is removed.
+- The default XML parser no longer typecasts (`Nori.new(advanced_typecasting: false)`): dates and `true` stay
+  provider strings.
+- `nori` 2.8 or newer is required.
 
 ### Fixed
 
@@ -31,17 +34,20 @@
 - `Reply` no longer mutates (or fails on) frozen input.
 - A multi-part SMS keeps every `sms_id`; a single `<message_info>` with a phone is parsed.
 - `require 'sms_traffic_sdk'` works with `Bundler.require`.
+- Loading the gem without a preloaded `StringIO` no longer fails with `NameError` (nori 2.7.0 missed
+  `require 'stringio'`; fixed in nori 2.8).
 
 ### Changed
 
-- CI runs lint and RSpec on Ruby 3.1-3.4, uploads Cobertura coverage to Codecov, and publishes to RubyGems from a
-  published release whose tag matches the gem version. The gem package contains only `lib`, `README.md`, `LICENSE`
-  and `CHANGELOG.md`.
+- CI runs lint and RSpec on Ruby 3.1-3.4, smoke-tests the built gem in a clean Ruby process, uploads Cobertura
+  coverage to Codecov, and publishes to RubyGems through trusted publishing (OIDC) from a published release whose tag
+  matches the gem version. The gem package contains only `lib`, `README.md`, `LICENSE` and `CHANGELOG.md`.
 
 ### Security
 
 - `Net::HTTP#set_debug_output` is no longer used, so the login, password and SMS text are never written to the logger.
-  Debug logging emits one request and one response line with `login`, `password` and `message` filtered.
+  Debug logging emits one request line with `login`, `password` and `message` filtered, and one response line with
+  the HTTP status and body size only.
 
 ### Migration
 
@@ -56,5 +62,3 @@
 - Replace `response.as_json` / `sms.response.as_json` with `reply.to_h` / `sms.reply&.to_h`.
 - Replace `response.success?` checks with `rescue SmsTraffic::Error`.
 - Replace `reply.hash["send_date"]` / `reply.hash["status"]` with `reply.send_date` / `reply.status`.
-- The default XML parser no longer typecasts: values such as dates and `true` stay provider strings
-  (`Nori.new(advanced_typecasting: false)`).
