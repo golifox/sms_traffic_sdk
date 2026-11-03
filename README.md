@@ -37,58 +37,84 @@ Or install it yourself as:
 Define settings:
 
 ```ruby
-# initializers/sms_traffic.rb
-require 'sms_traffic_sdk'
+# config/initializers/sms_traffic.rb
+require 'sms_traffic'
 
 SmsTraffic.configure do |config|
-  config.login = 'login'
-  config.password = 'password'
-  config.originator = 'default_originator'
-  config.server = 'https://api.smstraffic.ru'
-  config.debug = true
-  config.debugger = Rails.logger
+  config.login          = 'login'
+  config.password       = 'password'
+  config.host           = 'https://api.smstraffic.ru'
+  config.originator     = 'default_originator' # optional, can be given per SMS
+  config.open_timeout   = 10                   # seconds, default 10
+  config.read_timeout   = 30                   # seconds, default 30
+  config.validate_phone = true                 # default true: 11+ digits
+  config.debug          = true                 # default false
+  config.logger         = Rails.logger         # required when debug is true
 end
 ```
 
-Initialize sms:
-```ruby
-sms = SmsTraffic::Sms.new('phone', 'text', 'originator') # initialize sms, originator by default from settings
-# =>  #<SmsTraffic::Sms:0x0000 @errors=[], @message="text", @originator="default_originator", @phone="phone", @status="not-sent">
+`login`, `password` and `host` are required; `logger` is required when `debug` is enabled.
+With `debug` on, one request line and one response line are written through `logger.debug`;
+`login`, `password` and `message` are replaced with `[FILTERED]`.
 
+Send an SMS:
+
+```ruby
+sms = SmsTraffic::Sms.new('79991112233', 'text', originator: 'my_brand') # originator defaults to the configured one
+
+sms.deliver      # => true when the provider enqueued it, false otherwise
+sms.status       # => 'sent' ('not-sent' until delivered)
+sms.id           # => '123456789' (the first sms id of the reply)
+sms.reply        # => #<SmsTraffic::Client::DeliverReply>
+sms.errors       # => [] (messages of failed attempts)
 ```
 
-Send it and get sent sms id and dispatch code:
+`deliver` and `update_status` never raise on provider or network failures; they append the message to `errors`
+and keep the current `status`.
+
+Refresh the status:
+
 ```ruby
-sms.deliver # send sms. returns sms id or dispatch code if something went wrong
-# => true
-sms.id # get sms id
-# => '123456789'
+sms.update_status # => 'delivered' (downcased provider status, or the unchanged status on failure)
 ```
 
-Get current sms status and update it:
+Use the client directly. It raises typed errors:
+
 ```ruby
-sms.status # get sms delivery status
-# => 'sent'
-sms.update_status # updates sms delivery status. returns status or status check response code on error
-# => 'delivered'
+reply = SmsTraffic::Client.deliver('79991112233,79261112233', 'text', 'my_brand')
+reply.ok?        # => true
+reply.sms_ids    # => ['8287366071', '8287366073']
+reply.messages   # => [{ phone: '79991112233', sms_id: '8287366071', push_id: 'a' }, ...]
+reply.sms_id('79261112233') # first sms id for the phone
+
+reply = SmsTraffic::Client.status('8287713301', '8287713303')
+reply.entries    # => [#<struct SmsTraffic::Client::StatusReply::Entry sms_id="8287713301", status="Delivered", ...>]
+reply.statuses   # => { '8287713301' => 'Delivered' }
+reply.errors     # => { '8287713303' => 'no such message or this message does not belong to you' }
+reply.entry('8287713303').not_found? # => true
+reply.status('8287713301')           # => 'Delivered'; the id may be omitted when there is one entry
 ```
 
-Get any sms status:
-```ruby
-response = SmsTraffic.status(sms_id) # status - sms delivery status unless error or return error
-reply = response.reply
-# => #<SmsTraffic::Client::StatusReply:0x0000>
-status = reply.status
-# => "Delivered"
-reply.hash
-# => 
-# {"error"=>nil,
-#  "submition_date"=>"2024-07-15 11:36:25",
-#  "send_date"=>"2024-07-15 11:36:25",
-#  "last_status_change_date"=>"2024-07-15 11:36:25",
-#  "sms_id"=>"865149797164801235",
-#  "status"=>"Delivered"}
+Each entry has `sms_id`, `status`, `error`, `submission_date`, `send_date`, `last_status_change_date`
+(strings as sent by the provider), `error?` and `not_found?`.
 
+### Errors
+
+All errors inherit from `SmsTraffic::Error`:
+
+- `SmsTraffic::ConnectionError` - network, timeout or TLS failure (the original exception is `cause`).
+- `SmsTraffic::HttpError` - non-2xx response; has `status` and `body`.
+- `SmsTraffic::ApiError` - the provider replied `ERROR`; has `code` and `description`.
+
+```ruby
+begin
+  SmsTraffic::Client.deliver('79991112233', 'text')
+rescue SmsTraffic::ApiError => e
+  e.code        # => '401'
+  e.description # => 'login param is missing'
+rescue SmsTraffic::Error => e
+  e.message
+end
 ```
 
 # Contributing
