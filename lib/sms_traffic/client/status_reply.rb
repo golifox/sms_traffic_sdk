@@ -13,6 +13,14 @@ module SmsTraffic
         def not_found?
           error? && error.match?(NOT_FOUND)
         end
+
+        def final?
+          Status.final?(status)
+        end
+
+        def delivered?
+          Status.delivered?(status)
+        end
       end
 
       # @return [Array<Entry>]
@@ -33,7 +41,7 @@ module SmsTraffic
         define_method(name) { |sms_id = nil| entry(sms_id)&.public_send(name) }
       end
 
-      %i[error? not_found?].each do |name|
+      %i[error? not_found? final? delivered?].each do |name|
         define_method(name) { |sms_id = nil| entry(sms_id)&.public_send(name) || false }
       end
 

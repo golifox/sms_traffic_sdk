@@ -1,5 +1,6 @@
 require_relative 'sms_traffic/version'
 require_relative 'sms_traffic/errors'
+require_relative 'sms_traffic/status'
 require_relative 'sms_traffic/configuration'
 require_relative 'sms_traffic/client'
 require_relative 'sms_traffic/sms'

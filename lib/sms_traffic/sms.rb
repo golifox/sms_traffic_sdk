@@ -37,6 +37,16 @@ module SmsTraffic
       status
     end
 
+    # @return [Boolean] the stored status is a final provider status
+    def final?
+      Status.final?(status)
+    end
+
+    # @return [Boolean] the stored status is Delivered
+    def delivered?
+      Status.delivered?(status)
+    end
+
     private
 
     def mark_sent
