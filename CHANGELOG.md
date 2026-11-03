@@ -32,6 +32,12 @@
 - A multi-part SMS keeps every `sms_id`; a single `<message_info>` with a phone is parsed.
 - `require 'sms_traffic_sdk'` works with `Bundler.require`.
 
+### Changed
+
+- CI runs lint and RSpec on Ruby 3.1-3.4, uploads Cobertura coverage to Codecov, and publishes to RubyGems from a
+  published release whose tag matches the gem version. The gem package contains only `lib`, `README.md`, `LICENSE`
+  and `CHANGELOG.md`.
+
 ### Security
 
 - `Net::HTTP#set_debug_output` is no longer used, so the login, password and SMS text are never written to the logger.
