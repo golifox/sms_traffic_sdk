@@ -24,5 +24,22 @@ module SmsTraffic
       @description = description
       super("#{code}: #{description}")
     end
+
+    # Temporary server problem: retry later or use the backup host.
+    def retryable?
+      code.to_i == 1000
+    end
+
+    def access_denied?
+      [411, 412].include?(code.to_i)
+    end
+
+    def insufficient_funds?
+      code.to_i == 415
+    end
+
+    def blocked_phone?
+      code.to_i == 432
+    end
   end
 end
