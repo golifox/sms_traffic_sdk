@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/golifox/sms_traffic'
   spec.license       = 'MIT'
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  spec.files         = Dir['lib/**/*.rb', 'README.md', 'LICENSE', 'CHANGELOG.md']
   spec.require_paths = ['lib']
 
   spec.required_ruby_version = '>= 3.1'
@@ -25,4 +25,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'nori', '~> 2.6'
 
   spec.metadata['rubygems_mfa_required'] = 'true'
+  spec.metadata['source_code_uri'] = 'https://github.com/golifox/sms_traffic'
+  spec.metadata['changelog_uri'] = 'https://github.com/golifox/sms_traffic/blob/main/CHANGELOG.md'
 end
