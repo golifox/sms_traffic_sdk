@@ -21,6 +21,7 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 3.1'
 
+  spec.add_dependency 'bigdecimal', '>= 3.1'
   spec.add_dependency 'nokogiri', '~> 1.12'
   spec.add_dependency 'nori', '~> 2.8'
 

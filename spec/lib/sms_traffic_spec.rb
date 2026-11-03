@@ -70,7 +70,7 @@ RSpec.describe SmsTraffic do
 
     it 'lists every attribute in to_h' do
       expect(configuration.to_h.keys).to contain_exactly(
-        :login, :password, :host, :originator, :debug, :logger,
+        :login, :password, :host, :fallback_host, :originator, :debug, :logger,
         :open_timeout, :read_timeout, :validate_phone, :xml_parser
       )
     end

@@ -4,6 +4,7 @@ require 'uri'
 require_relative 'client/reply'
 require_relative 'client/deliver_reply'
 require_relative 'client/status_reply'
+require_relative 'client/account_reply'
 
 module SmsTraffic
   class Client
@@ -12,6 +13,10 @@ module SmsTraffic
     FILTERED_PARAMS = %i[login password message].freeze
     CONNECTION_ERRORS = [
       SocketError, SystemCallError, IOError, Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError
+    ].freeze
+    # Failures that prove the request never reached the server.
+    UNREACHABLE_ERRORS = [
+      SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETUNREACH, Net::OpenTimeout
     ].freeze
 
     class << self
@@ -23,30 +28,59 @@ module SmsTraffic
       # @raise [ConnectionError, HttpError, ApiError]
       def deliver(phone, message, originator = nil, **options)
         originator ||= SmsTraffic.configuration.originator
-        build_reply(DeliverReply, post(deliver_params(phone, message, originator, **options)))
+        request(DeliverReply, deliver_params(phone, message, originator, **options), read_only: false)
       end
 
       # @param sms_ids [Array<String>] sms ids
       # @return [StatusReply]
       # @raise [ConnectionError, HttpError, ApiError]
       def status(*sms_ids)
-        build_reply(StatusReply, post(status_params(sms_ids)))
+        request(StatusReply, status_params(sms_ids), read_only: true)
+      end
+
+      # @return [AccountReply]
+      # @raise [ConnectionError, HttpError, ApiError]
+      def balance
+        request(AccountReply, account_params, read_only: true)
       end
 
       private
 
-      def build_reply(reply_class, body)
-        reply = reply_class.new(body)
+      # Sends the request to the configured host and, when a fallback host is set, repeats it there once if the
+      # failure allows it.
+      def request(reply_class, form_data, read_only:)
+        config = SmsTraffic.configuration
+        attempt(reply_class, form_data, config.host)
+      rescue Error => e
+        raise unless config.fallback_host && retry_on_fallback?(e, read_only:)
+
+        log("retry on #{config.fallback_host} after #{e.class}")
+        attempt(reply_class, form_data, config.fallback_host)
+      end
+
+      def attempt(reply_class, form_data, host)
+        reply = reply_class.new(post(form_data, host))
         raise ApiError.new(reply.code, reply.description) if reply.api_error?
 
         reply
       end
 
+      # A read-only request is safe to repeat after any transport failure. A deliver is repeated only when the
+      # request never reached the server, as the provider may already have queued the SMS otherwise.
+      def retry_on_fallback?(error, read_only:)
+        case error
+        when ApiError then error.retryable?
+        when ConnectionError then read_only || UNREACHABLE_ERRORS.any? { |klass| error.cause.is_a?(klass) }
+        when HttpError then read_only && error.status >= 500
+        else false
+        end
+      end
+
       # @param form_data [Hash<Symbol, String|Integer>]
       # @return [String] response body
-      def post(form_data)
+      def post(form_data, host)
         config = SmsTraffic.configuration
-        uri    = URI.join(config.host, ENDPOINT)
+        uri    = URI.join(host, ENDPOINT)
         log("request POST #{uri} #{filter(form_data)}")
 
         response = perform(uri, form_data, config)
@@ -94,12 +128,15 @@ module SmsTraffic
       end
 
       def status_params(sms_ids)
-        {
-          login:     SmsTraffic.configuration.login,
-          password:  SmsTraffic.configuration.password,
-          operation: 'status',
-          sms_id:    sms_ids.join(',')
-        }
+        operation_params('status').merge(sms_id: sms_ids.join(','))
+      end
+
+      def account_params
+        operation_params('account')
+      end
+
+      def operation_params(operation)
+        { login: SmsTraffic.configuration.login, password: SmsTraffic.configuration.password, operation: }
       end
     end
   end
