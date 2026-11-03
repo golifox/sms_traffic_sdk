@@ -1,77 +1,104 @@
 require 'net/http'
+require 'openssl'
+require 'uri'
+require_relative 'client/reply'
+require_relative 'client/deliver_reply'
+require_relative 'client/status_reply'
 
 module SmsTraffic
   class Client
-    class << self
-      attr_reader :uri
+    ENDPOINT = 'multi.php'.freeze
+    FILTERED = '[FILTERED]'.freeze
+    FILTERED_PARAMS = %i[login password message].freeze
+    CONNECTION_ERRORS = [
+      SocketError, SystemCallError, IOError, Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError
+    ].freeze
 
-      # @param phone [String] phone number
+    class << self
+      # @param phone [String] phone number or phone numbers separated by comma
       # @param message [String] message
-      # @param originator [String] originator (subject)
+      # @param originator [String] originator (subject), defaults to the configured one
       # @param options [Hash] additional options
+      # @return [DeliverReply]
+      # @raise [ConnectionError, HttpError, ApiError]
       def deliver(phone, message, originator = nil, **options)
         originator ||= SmsTraffic.configuration.originator
-        form_data = deliver_params(phone, message, originator, **options)
-        response = perform_request(form_data)
-        Response.new(response, type: :deliver)
+        build_reply(DeliverReply, post(deliver_params(phone, message, originator, **options)))
       end
 
-      # @param message_id [String] message id
-      def status(*message_ids)
-        form_data = status_params(message_ids)
-        response = perform_request(form_data)
-        Response.new(response, type: :status)
+      # @param sms_ids [Array<String>] sms ids
+      # @return [StatusReply]
+      # @raise [ConnectionError, HttpError, ApiError]
+      def status(*sms_ids)
+        build_reply(StatusReply, post(status_params(sms_ids)))
       end
 
       private
 
-      # @return [Net::HTTP]
-      def connection
-        host, logger = SmsTraffic.configuration.values_at(:host, :logger)
+      def build_reply(reply_class, body)
+        reply = reply_class.new(body)
+        raise ApiError.new(reply.code, reply.description) if reply.api_error?
 
-        @uri ||= URI.join(host, 'multi.php')
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.read_timeout = 30
-        http.use_ssl = (uri.scheme == 'https')
-        http.set_debug_output(logger)
-        http
+        reply
       end
 
       # @param form_data [Hash<Symbol, String|Integer>]
-      # @return [Net::HTTPResponse]
-      def perform_request(form_data)
-        connection.start do |http|
+      # @return [String] response body
+      def post(form_data)
+        config = SmsTraffic.configuration
+        uri    = URI.join(config.host, ENDPOINT)
+        log("request POST #{uri} #{filter(form_data)}")
+
+        response = perform(uri, form_data, config)
+        log("response #{response.code} #{response.body}")
+        successful_body(response)
+      rescue *CONNECTION_ERRORS => e
+        raise ConnectionError, "#{e.class}: #{e.message}"
+      end
+
+      def successful_body(response)
+        raise HttpError.new(response.code.to_i, response.body) unless response.is_a?(Net::HTTPSuccess)
+
+        response.body
+      end
+
+      def perform(uri, form_data, config)
+        options = { use_ssl: uri.scheme == 'https', open_timeout: config.open_timeout,
+                    read_timeout: config.read_timeout }
+        Net::HTTP.start(uri.host, uri.port, **options) do |http|
           request = Net::HTTP::Post.new(uri.request_uri)
           request.set_form_data(form_data)
           http.request(request)
         end
       end
 
-      # @param phone [String] phone number or phone numbers separated by comma
-      # @param message [String] message
-      # @param originator [String] originator (subject)
-      # @param options [Hash] additional options
-      # @return [Hash<Symbol, String|Integer>]
+      def log(line)
+        config = SmsTraffic.configuration
+        config.logger.debug("[SmsTraffic] #{line}") if config.debug
+      end
+
+      def filter(form_data)
+        form_data.to_h { |key, value| [key, FILTERED_PARAMS.include?(key) ? FILTERED : value] }
+      end
+
       def deliver_params(phone, message, originator, **options)
         {
           login:        SmsTraffic.configuration.login,
           password:     SmsTraffic.configuration.password,
           phones:       phone,
-          message:      message,
+          message:,
           want_sms_ids: 1,
           rus:          5,
-          originator:   originator
+          originator:
         }.merge(options)
       end
 
-      # @param message_ids [Array<String>] message ids
-      # @return [Hash<Symbol, String|Integer>]
-      def status_params(*message_ids)
+      def status_params(sms_ids)
         {
           login:     SmsTraffic.configuration.login,
           password:  SmsTraffic.configuration.password,
           operation: 'status',
-          sms_id:    message_ids.join(',')
+          sms_id:    sms_ids.join(',')
         }
       end
     end
